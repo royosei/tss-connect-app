@@ -4,16 +4,21 @@ import logo from "./assets/logo.png";
 import QRCode from "qrcode";
 
 /* ============================================================
-   THE COP AAAYM CAMP APP — The Catalyst Camp 2026
-   Church of Pentecost • Anyaa-Ablekuma Area Youth Ministry
-   Anagkazo Campus, Mampong • Wed 12 – Sat 15 August 2026
+   THE SOLO SUMMIT CONNECT APP — TSS CONNECT 2026
+   Church of Pentecost • PIWC ABLEKUMA Youth Ministry
+   Lloyds Beach Resort, Kokrobite • 3rd October, 2026
    ============================================================ */
 
 const LOGO = logo;
 const ADMIN_EMAIL = "360adsphere@gmail.com";
-const DEFAULT_AREA = "PIWC Ablekuma";
+const DEFAULT_AREA = "Anyaa-Ablekuma";
 const CAMP_THEME = "TSS Connect 2026";
-const MINISTRY_MOTTO = "Rooted in Faith, Living the Flourishing Life";
+const MINISTRY_MOTTO = "Arise & Shine";
+const FEE_AMOUNT = "GHS 200";
+const PAYMENT_DEADLINE = "3rd September 2026";
+const MOMO_NUMBER = "0535700151";
+const MOMO_NAME = "Emmanuel Mintah Asomaning";
+const SHIRT_FEE = "GHS 60";
 
 /* ---------- data layer (Supabase) ---------- */
 async function insertRegistrations(records) {
@@ -141,10 +146,8 @@ function Splash({ onDone }) {
         <img src={LOGO} alt="COP Youth" className="splash-logo" />
         <div className="splash-ring" />
       </div>
-      <div className="splash-title">TSS CONNECT</div>
-      <div className="splash-sub">
-        Rooted in Faith, Living the Flourishing Life
-      </div>
+      <div className="splash-title">TSS connect 2026</div>
+      <div className="splash-sub">created by Adsphere</div>
       <div className="splash-tap">tap to enter</div>
     </div>
   );
@@ -152,24 +155,18 @@ function Splash({ onDone }) {
 
 /* ============================ HOME ============================ */
 function Home({ go, total }) {
-  const c = useCountdown(new Date("2026-09-31T13:00:00+00:00").getTime());
+  const c = useCountdown(new Date("2026-09-03T13:00:00+00:00").getTime());
   return (
     <div className="page">
       <div className="hero">
         <div className="hero-bg" />
         <div className="hero-inner">
           <img src={LOGO} alt="logo" className="hero-logo" />
-          <div className="eyebrow">
-            Pentecost International Worship Centre · Ablekuma
-          </div>
+          <div className="eyebrow">The Church of Pentecost · PIWC Ablekuma</div>
           <h1 className="hero-title">
-            TSS CONNECT<span>2026</span>
+            TSS Connect<span>2026</span>
           </h1>
-          <p className="hero-meta">
-            Lloyds Beach Resort, Kokrobite
-            <br />
-            Saturday 3rd October 2026
-          </p>
+          <p className="hero-meta">Saturday 3rd October 2026</p>
 
           <div className="countdown">
             {[
@@ -209,11 +206,11 @@ function Home({ go, total }) {
           <div className="ic-v">
             Rooted in Faith, Living the Flourishing Life
           </div>
-          <p>One-Day Fellowship</p>
+          <p>Jeremiah 17:7–8 & Psalm 1:3 </p>
         </Tilt>
         <Tilt className="info-card">
           <div className="ic-k">Venue</div>
-          <div className="ic-v">Lloyds Beach Resort</div>
+          <div className="ic-v">Lloyds Beach Resort, Kokrobite</div>
           <p>
             one-day transformational fellowship experience that strengthens
             faith, builds relationships, and promotes purposeful Christian
@@ -222,8 +219,10 @@ function Home({ go, total }) {
         </Tilt>
         <Tilt className="info-card">
           <div className="ic-k">Who</div>
-          <div className="ic-v">All youth</div>
-          <p>Register individually, or sign up your friend at a go.</p>
+          <div className="ic-v">All Single youth</div>
+          <p>
+            Register individually, or sign up your whole district in one go.
+          </p>
         </Tilt>
       </div>
     </div>
@@ -247,16 +246,22 @@ function Field({ label, children, req, err }) {
 /* ============================ SINGLE REGISTER ============================ */
 const blank = {
   name: "",
-  age: "",
-  gender: "",
-  email: "",
   phone: "",
-  area: DEFAULT_AREA,
-  district: "",
+  email: "",
   assembly: "",
-  allergy: "",
+  district: "",
   emergencyName: "",
+  emergencyRelationship: "",
   emergencyPhone: "",
+  pickupLocation: "",
+  paymentDate: "",
+  momoReference: "",
+  shirtSize: "",
+  medicalInfo: "",
+  notes: "",
+  consentMeals: false,
+  consentPhotos: false,
+  consentGuidelines: false,
 };
 
 function Register({ go, toast, refresh }) {
@@ -265,19 +270,26 @@ function Register({ go, toast, refresh }) {
   const [busy, setBusy] = useState(false);
   const [pass, setPass] = useState(null);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const setChk = (k) => (e) => setF({ ...f, [k]: e.target.checked });
 
   const validate = () => {
     const x = {};
     if (!f.name.trim()) x.name = "Enter the full name";
-    if (!f.age) x.age = "Select an age group";
-    if (!f.gender) x.gender = "Select gender";
-    if (!validPhone(f.phone)) x.phone = "Enter a valid phone number";
-    if (!validEmail(f.email)) x.email = "Enter a valid email";
-    if (!f.district.trim()) x.district = "Enter the district";
+    if (!validPhone(f.phone)) x.phone = "Enter a valid WhatsApp number";
+    if (f.email.trim() && !validEmail(f.email)) x.email = "Enter a valid email";
+    if (!f.assembly.trim()) x.assembly = "Enter your local assembly";
     if (!f.emergencyName.trim())
       x.emergencyName = "Enter emergency contact name";
+    if (!f.emergencyRelationship.trim())
+      x.emergencyRelationship = "Enter the relationship";
     if (!validPhone(f.emergencyPhone))
       x.emergencyPhone = "Enter a valid phone number";
+    if (!f.pickupLocation.trim()) x.pickupLocation = "Enter a pickup location";
+    if (!f.paymentDate) x.paymentDate = "Select the payment date";
+    if (!f.momoReference.trim())
+      x.momoReference = "Enter the MoMo transaction ID/reference";
+    if (!f.consentMeals || !f.consentPhotos || !f.consentGuidelines)
+      x.declaration = "Please agree to all three declarations";
     setErr(x);
     return Object.keys(x).length === 0;
   };
@@ -288,15 +300,18 @@ function Register({ go, toast, refresh }) {
     const rec = {
       id: uuidv4(),
       name: f.name.trim(),
-      age: f.age,
-      gender: f.gender,
-      email: f.email,
-      phone: f.phone,
-      area: f.area.trim(),
+      phone: f.phone.trim(),
+      email: f.email.trim(),
+      area: DEFAULT_AREA,
       district: f.district.trim(),
-      assembly: f.assembly,
-      allergy: f.allergy,
-      emergency: `${f.emergencyName.trim()}, ${f.emergencyPhone.trim()}`,
+      assembly: f.assembly.trim(),
+      emergency: `${f.emergencyName.trim()}, ${f.emergencyRelationship.trim()}, ${f.emergencyPhone.trim()}`,
+      pickup_location: f.pickupLocation.trim(),
+      payment_date: f.paymentDate,
+      momo_reference: f.momoReference.trim(),
+      shirt_size: f.shirtSize,
+      medical_info: f.medicalInfo.trim(),
+      notes: f.notes.trim(),
       registered_by: "Self",
     };
     try {
@@ -336,23 +351,7 @@ function Register({ go, toast, refresh }) {
             placeholder="e.g. Ama Mensah"
           />
         </Field>
-        <div className="row2">
-          <Field label="Age group" req err={err.age}>
-            <select className="inp" value={f.age} onChange={set("age")}>
-              <option value="">Select</option>
-              <option>13-19</option>
-              <option>20 and above</option>
-            </select>
-          </Field>
-          <Field label="Gender" req err={err.gender}>
-            <select className="inp" value={f.gender} onChange={set("gender")}>
-              <option value="">Select</option>
-              <option>Male</option>
-              <option>Female</option>
-            </select>
-          </Field>
-        </div>
-        <Field label="Phone number" req err={err.phone}>
+        <Field label="Phone number (WhatsApp)" req err={err.phone}>
           <input
             className="inp"
             value={f.phone}
@@ -360,51 +359,52 @@ function Register({ go, toast, refresh }) {
             placeholder="0XX XXX XXXX"
           />
         </Field>
-        <Field label="Email" req err={err.email}>
+        <Field label="Email address" err={err.email}>
           <input
             className="inp"
             value={f.email}
             onChange={set("email")}
-            placeholder="name@email.com"
+            placeholder="Optional"
           />
         </Field>
         <div className="row2">
-          <Field label="District" req err={err.district}>
-            <input
-              className="inp"
-              value={f.district}
-              onChange={set("district")}
-              placeholder="Your COP district"
-            />
-          </Field>
-          <Field label="Assembly / Local">
+          <Field label="Local assembly" req err={err.assembly}>
             <input
               className="inp"
               value={f.assembly}
               onChange={set("assembly")}
+              placeholder="e.g. Ablekuma Central"
+            />
+          </Field>
+          <Field label="District">
+            <input
+              className="inp"
+              value={f.district}
+              onChange={set("district")}
               placeholder="Optional"
             />
           </Field>
         </div>
-        <Field label="Any allergy or medical note to take care of">
-          <textarea
+
+        <div className="section-lab">Emergency contact</div>
+        <Field label="Name" req err={err.emergencyName}>
+          <input
             className="inp"
-            rows={2}
-            value={f.allergy}
-            onChange={set("allergy")}
-            placeholder="e.g. peanut allergy, asthma — or leave blank"
+            value={f.emergencyName}
+            onChange={set("emergencyName")}
+            placeholder="e.g. Kofi Mensah"
           />
         </Field>
         <div className="row2">
-          <Field label="Emergency contact name" req err={err.emergencyName}>
+          <Field label="Relationship" req err={err.emergencyRelationship}>
             <input
               className="inp"
-              value={f.emergencyName}
-              onChange={set("emergencyName")}
-              placeholder="e.g. Kofi Mensah"
+              value={f.emergencyRelationship}
+              onChange={set("emergencyRelationship")}
+              placeholder="e.g. Mother, Brother"
             />
           </Field>
-          <Field label="Emergency contact phone" req err={err.emergencyPhone}>
+          <Field label="Phone number" req err={err.emergencyPhone}>
             <input
               className="inp"
               value={f.emergencyPhone}
@@ -413,6 +413,122 @@ function Register({ go, toast, refresh }) {
             />
           </Field>
         </div>
+
+        <Field label="Pickup location" req err={err.pickupLocation}>
+          <input
+            className="inp"
+            value={f.pickupLocation}
+            onChange={set("pickupLocation")}
+            placeholder="Where will you be picked up from?"
+          />
+        </Field>
+
+        <div className="section-lab">Registration fee</div>
+        <p className="fee-note">
+          Amount: <b>{FEE_AMOUNT}</b> · Pay by <b>{PAYMENT_DEADLINE}</b>
+          <br />
+          MoMo number: <b>{MOMO_NUMBER}</b> ({MOMO_NAME})
+        </p>
+        <div className="row2">
+          <Field label="Payment date" req err={err.paymentDate}>
+            <input
+              type="date"
+              className="inp"
+              value={f.paymentDate}
+              onChange={set("paymentDate")}
+            />
+          </Field>
+          <Field
+            label="MoMo Transaction ID / Reference"
+            req
+            err={err.momoReference}
+          >
+            <input
+              className="inp"
+              value={f.momoReference}
+              onChange={set("momoReference")}
+              placeholder="TSS"
+            />
+          </Field>
+        </div>
+
+        <Field
+          label={`TSS-Shirt size (${SHIRT_FEE}, only if you don't already have one)`}
+        >
+          <select
+            className="inp"
+            value={f.shirtSize}
+            onChange={set("shirtSize")}
+          >
+            <option value="">I already have one / not needed</option>
+            <option>Small</option>
+            <option>Medium</option>
+            <option>Large</option>
+            <option>XL</option>
+            <option>XXL</option>
+            <option>XXXL</option>
+          </select>
+        </Field>
+
+        <Field label="Any medical condition or emergency information">
+          <textarea
+            className="inp"
+            rows={2}
+            value={f.medicalInfo}
+            onChange={set("medicalInfo")}
+            placeholder="Optional — leave blank if none"
+          />
+        </Field>
+        <Field label="Anything else you'd like us to know?">
+          <textarea
+            className="inp"
+            rows={2}
+            value={f.notes}
+            onChange={set("notes")}
+            placeholder="Optional"
+          />
+        </Field>
+
+        <p className="fee-note">🏖️ Don't forget to bring your beach games!</p>
+
+        <div className="section-lab">Declaration</div>
+        <label className="chk-row">
+          <input
+            type="checkbox"
+            checked={f.consentMeals}
+            onChange={setChk("consentMeals")}
+          />
+          <span>
+            I understand that meals will not be provided during TSS Connect
+            2026, and I am responsible for making my own meal arrangements.
+          </span>
+        </label>
+        <label className="chk-row">
+          <input
+            type="checkbox"
+            checked={f.consentPhotos}
+            onChange={setChk("consentPhotos")}
+          />
+          <span>
+            I consent to photographs and videos taken during the event being
+            used for church publicity.
+          </span>
+        </label>
+        <label className="chk-row">
+          <input
+            type="checkbox"
+            checked={f.consentGuidelines}
+            onChange={setChk("consentGuidelines")}
+          />
+          <span>
+            I agree to abide by the event guidelines and instructions from the
+            organizing team.
+          </span>
+        </label>
+        {err.declaration && (
+          <div className="field-err big">{err.declaration}</div>
+        )}
+
         <button className="btn btn-red full" disabled={busy} onClick={submit}>
           {busy ? "Saving…" : "Complete registration"}
         </button>
@@ -425,11 +541,10 @@ function Register({ go, toast, refresh }) {
 const blankMember = () => ({
   id: uid(),
   name: "",
-  age: "",
-  gender: "",
   phone: "",
   email: "",
-  allergy: "",
+  assembly: "",
+  medicalInfo: "",
 });
 
 function Bulk({ go, toast, refresh }) {
@@ -449,26 +564,26 @@ function Bulk({ go, toast, refresh }) {
   const submit = async () => {
     if (!organizer.trim())
       return setErr("Enter your name (the person registering)");
-    if (!district.trim()) return setErr("Enter the district");
     const valid = rows.filter(
-      (r) => r.name.trim() && r.age && r.gender && validPhone(r.phone),
+      (r) => r.name.trim() && validPhone(r.phone) && r.assembly.trim(),
     );
     if (valid.length === 0)
-      return setErr("Add at least one member with name, age, gender and phone");
+      return setErr(
+        "Add at least one member with name, phone and local assembly",
+      );
     setErr("");
     setBusy(true);
     const recs = valid.map((r) => ({
       id: uuidv4(),
       name: r.name.trim(),
-      age: r.age,
-      gender: r.gender,
-      phone: r.phone,
-      email: r.email,
-      allergy: r.allergy,
+      phone: r.phone.trim(),
+      email: r.email.trim(),
       area: DEFAULT_AREA,
       district: district.trim(),
-      assembly: "",
+      assembly: r.assembly.trim(),
+      medical_info: r.medicalInfo.trim(),
       emergency: "",
+      pickup_location: "",
       registered_by: `Bulk · ${organizer.trim()}`,
     }));
     try {
@@ -479,7 +594,7 @@ function Bulk({ go, toast, refresh }) {
     }
     await refresh();
     setBusy(false);
-    toast(`${recs.length} members from ${district.trim()} registered`, "ok");
+    toast(`${recs.length} members registered`, "ok");
     setPasses(recs);
   };
 
@@ -487,8 +602,14 @@ function Bulk({ go, toast, refresh }) {
 
   return (
     <div className="page form-page">
-      <Header go={go} title="Bulk register a district" />
+      <Header go={go} title="Bulk register a group" />
       <Tilt className="form-card" max={2}>
+        <p className="fee-note">
+          For speed, bulk registration only collects the essentials. Each member
+          should still complete their own emergency contact, pickup, payment and
+          declaration details individually — or an admin can add these later via
+          Edit in the console.
+        </p>
         <div className="row2">
           <Field label="Your name (registering officer)" req>
             <input
@@ -498,7 +619,7 @@ function Bulk({ go, toast, refresh }) {
               placeholder="e.g. District Youth Leader"
             />
           </Field>
-          <Field label="District" req>
+          <Field label="District (optional)">
             <input
               className="inp"
               value={district}
@@ -523,29 +644,17 @@ function Bulk({ go, toast, refresh }) {
                 value={r.name}
                 onChange={(e) => setRow(r.id, "name", e.target.value)}
               />
-              <select
-                className="inp sm w90"
-                value={r.age}
-                onChange={(e) => setRow(r.id, "age", e.target.value)}
-              >
-                <option value="">Age</option>
-                <option>13-19</option>
-                <option>20 and above</option>
-              </select>
-              <select
-                className="inp sm w90"
-                value={r.gender}
-                onChange={(e) => setRow(r.id, "gender", e.target.value)}
-              >
-                <option value="">Sex</option>
-                <option>Male</option>
-                <option>Female</option>
-              </select>
               <input
                 className="inp sm"
-                placeholder="Phone"
+                placeholder="Phone (WhatsApp)"
                 value={r.phone}
                 onChange={(e) => setRow(r.id, "phone", e.target.value)}
+              />
+              <input
+                className="inp sm"
+                placeholder="Local assembly"
+                value={r.assembly}
+                onChange={(e) => setRow(r.id, "assembly", e.target.value)}
               />
               <input
                 className="inp sm"
@@ -555,9 +664,9 @@ function Bulk({ go, toast, refresh }) {
               />
               <input
                 className="inp sm"
-                placeholder="Allergy (optional)"
-                value={r.allergy}
-                onChange={(e) => setRow(r.id, "allergy", e.target.value)}
+                placeholder="Medical info (optional)"
+                value={r.medicalInfo}
+                onChange={(e) => setRow(r.id, "medicalInfo", e.target.value)}
               />
               <button className="del" onClick={() => del(r.id)} title="Remove">
                 ×
@@ -581,15 +690,17 @@ function Bulk({ go, toast, refresh }) {
 function EditModal({ rec, onClose, onSaved, toast }) {
   const [f, setF] = useState({
     name: rec.name || "",
-    age: rec.age || "",
-    gender: rec.gender || "",
     phone: rec.phone || "",
     email: rec.email || "",
-    area: rec.area || DEFAULT_AREA,
     district: rec.district || "",
     assembly: rec.assembly || "",
-    allergy: rec.allergy || "",
     emergency: rec.emergency || "",
+    pickup_location: rec.pickup_location || "",
+    payment_date: rec.payment_date || "",
+    momo_reference: rec.momo_reference || "",
+    shirt_size: rec.shirt_size || "",
+    medical_info: rec.medical_info || "",
+    notes: rec.notes || "",
   });
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -600,15 +711,17 @@ function EditModal({ rec, onClose, onSaved, toast }) {
     try {
       await updateRegistration(rec.id, {
         name: f.name.trim(),
-        age: f.age,
-        gender: f.gender,
         phone: f.phone,
         email: f.email,
-        area: f.area,
         district: f.district.trim(),
         assembly: f.assembly,
-        allergy: f.allergy,
         emergency: f.emergency,
+        pickup_location: f.pickup_location,
+        payment_date: f.payment_date || null,
+        momo_reference: f.momo_reference,
+        shirt_size: f.shirt_size,
+        medical_info: f.medical_info,
+        notes: f.notes,
       });
     } catch (e) {
       setBusy(false);
@@ -634,23 +747,7 @@ function EditModal({ rec, onClose, onSaved, toast }) {
             <input className="inp" value={f.name} onChange={set("name")} />
           </Field>
           <div className="row2">
-            <Field label="Age group">
-              <select className="inp" value={f.age} onChange={set("age")}>
-                <option value="">Select</option>
-                <option>13-19</option>
-                <option>20 and above</option>
-              </select>
-            </Field>
-            <Field label="Gender">
-              <select className="inp" value={f.gender} onChange={set("gender")}>
-                <option value="">Select</option>
-                <option>Male</option>
-                <option>Female</option>
-              </select>
-            </Field>
-          </div>
-          <div className="row2">
-            <Field label="Phone">
+            <Field label="Phone (WhatsApp)">
               <input className="inp" value={f.phone} onChange={set("phone")} />
             </Field>
             <Field label="Email">
@@ -658,8 +755,12 @@ function EditModal({ rec, onClose, onSaved, toast }) {
             </Field>
           </div>
           <div className="row2">
-            <Field label="Area">
-              <input className="inp" value={f.area} onChange={set("area")} />
+            <Field label="Local assembly">
+              <input
+                className="inp"
+                value={f.assembly}
+                onChange={set("assembly")}
+              />
             </Field>
             <Field label="District">
               <input
@@ -669,26 +770,66 @@ function EditModal({ rec, onClose, onSaved, toast }) {
               />
             </Field>
           </div>
-          <Field label="Assembly / Local">
-            <input
-              className="inp"
-              value={f.assembly}
-              onChange={set("assembly")}
-            />
-          </Field>
-          <Field label="Allergy / medical note">
-            <textarea
-              className="inp"
-              rows={2}
-              value={f.allergy}
-              onChange={set("allergy")}
-            />
-          </Field>
-          <Field label="Emergency contact (name, phone)">
+          <Field label="Emergency contact (name, relationship, phone)">
             <input
               className="inp"
               value={f.emergency}
               onChange={set("emergency")}
+            />
+          </Field>
+          <Field label="Pickup location">
+            <input
+              className="inp"
+              value={f.pickup_location}
+              onChange={set("pickup_location")}
+            />
+          </Field>
+          <div className="row2">
+            <Field label="Payment date">
+              <input
+                type="date"
+                className="inp"
+                value={f.payment_date}
+                onChange={set("payment_date")}
+              />
+            </Field>
+            <Field label="MoMo Transaction ID / Reference">
+              <input
+                className="inp"
+                value={f.momo_reference}
+                onChange={set("momo_reference")}
+              />
+            </Field>
+          </div>
+          <Field label="TSS-Shirt size">
+            <select
+              className="inp"
+              value={f.shirt_size}
+              onChange={set("shirt_size")}
+            >
+              <option value="">None</option>
+              <option>Small</option>
+              <option>Medium</option>
+              <option>Large</option>
+              <option>XL</option>
+              <option>XXL</option>
+              <option>XXXL</option>
+            </select>
+          </Field>
+          <Field label="Medical condition / emergency info">
+            <textarea
+              className="inp"
+              rows={2}
+              value={f.medical_info}
+              onChange={set("medical_info")}
+            />
+          </Field>
+          <Field label="Additional notes">
+            <textarea
+              className="inp"
+              rows={2}
+              value={f.notes}
+              onChange={set("notes")}
             />
           </Field>
         </div>
@@ -754,15 +895,17 @@ function Admin({ go, toast }) {
   const exportCsv = () => {
     const head = [
       "Name",
-      "Age",
-      "Gender",
       "Phone",
       "Email",
-      "Area",
       "District",
-      "Assembly",
-      "Allergy",
-      "Emergency",
+      "Local assembly",
+      "Emergency contact",
+      "Pickup location",
+      "Payment date",
+      "MoMo reference",
+      "Shirt size",
+      "Medical info",
+      "Notes",
       "Registered by",
       "Checked in",
       "Registered at",
@@ -773,15 +916,17 @@ function Admin({ go, toast }) {
       lines.push(
         [
           esc(r.name),
-          esc(r.age),
-          esc(r.gender),
           esc(r.phone),
           esc(r.email),
-          esc(r.area),
           esc(r.district),
           esc(r.assembly),
-          esc(r.allergy),
           esc(r.emergency),
+          esc(r.pickup_location),
+          esc(r.payment_date),
+          esc(r.momo_reference),
+          esc(r.shirt_size),
+          esc(r.medical_info),
+          esc(r.notes),
           esc(r.registered_by),
           esc(r.checked_in ? "Yes" : "No"),
           esc(new Date(r.created_at).toLocaleString()),
@@ -792,7 +937,7 @@ function Admin({ go, toast }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "catalyst2026_registrations.csv";
+    a.download = "tssconnect2026_registrations.csv";
     a.click();
     URL.revokeObjectURL(url);
     toast("CSV exported", "ok");
@@ -844,7 +989,7 @@ function Admin({ go, toast }) {
     return t.includes(q.toLowerCase());
   });
   const districts = [...new Set(data.map((r) => r.district))];
-  const withAllergy = data.filter((r) => (r.allergy || "").trim()).length;
+  const withMedical = data.filter((r) => (r.medical_info || "").trim()).length;
   const inCount = data.filter((r) => r.checked_in).length;
   const byDistrict = districts
     .map((d) => ({ d, n: data.filter((r) => r.district === d).length }))
@@ -921,7 +1066,7 @@ function Admin({ go, toast }) {
               <div className="stat-l">Districts</div>
             </Tilt>
             <Tilt className="stat" max={10}>
-              <div className="stat-n">{withAllergy}</div>
+              <div className="stat-n">{withMedical}</div>
               <div className="stat-l">With medical notes</div>
             </Tilt>
           </div>
@@ -959,12 +1104,12 @@ function Admin({ go, toast }) {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Age</th>
-                    <th>Sex</th>
                     <th>Phone</th>
-                    <th>Area</th>
+                    <th>Local assembly</th>
                     <th>District</th>
-                    <th>Allergy / medical</th>
+                    <th>Pickup</th>
+                    <th>MoMo ref</th>
+                    <th>Medical</th>
                     <th>By</th>
                     <th>Status</th>
                     <th></th>
@@ -982,13 +1127,15 @@ function Admin({ go, toast }) {
                   {f.map((r) => (
                     <tr key={r.id}>
                       <td className="b">{r.name}</td>
-                      <td>{r.age}</td>
-                      <td>{r.gender}</td>
                       <td>{r.phone}</td>
-                      <td>{r.area || ""}</td>
+                      <td>{r.assembly || ""}</td>
                       <td>{r.district}</td>
-                      <td className={r.allergy ? "warn" : "muted"}>
-                        {r.allergy || "\u2014"}
+                      <td>{r.pickup_location || "\u2014"}</td>
+                      <td className="muted sm">
+                        {r.momo_reference || "\u2014"}
+                      </td>
+                      <td className={r.medical_info ? "warn" : "muted"}>
+                        {r.medical_info || "\u2014"}
                       </td>
                       <td className="muted sm">{r.registered_by}</td>
                       <td>
@@ -1128,7 +1275,7 @@ function CheckIn({ data, onChanged, toast }) {
               <div className="ci-info">
                 <div className="ci-name">
                   {r.name}{" "}
-                  {r.allergy ? (
+                  {r.medical_info ? (
                     <span className="ci-tag-allergy">\u26a0</span>
                   ) : null}
                 </div>
@@ -1256,15 +1403,16 @@ function CampPass({ rec, onDone }) {
           <div className="pass-top">
             <img src={LOGO} className="pass-logo" alt="" />
             <div>
-              <div className="pass-camp">Catalyst 2026</div>
+              <div className="pass-camp">TSS Connect 2026</div>
               <div className="pass-dates">
-                Anagkazo, Mampong \u00b7 12\u201315 Aug 2026
+                {rec.pickup_location ? `Pickup: ${rec.pickup_location}` : ""}
               </div>
             </div>
           </div>
           <div className="pass-name">{rec.name}</div>
           <div className="pass-meta">
-            {rec.area || DEFAULT_AREA} · {rec.district}
+            {rec.assembly}
+            {rec.district ? " · " + rec.district : ""}
           </div>
           <div className="pass-theme">{CAMP_THEME}</div>
           <QR text={rec.id} size={170} />
@@ -1343,7 +1491,7 @@ function Tag({ rec }) {
         <div className="tag-title">{MINISTRY_MOTTO}</div>
       </div>
       <div className="tag-name">{rec.name}</div>
-      <div className="tag-area">{rec.area || DEFAULT_AREA}</div>
+      <div className="tag-area">{rec.assembly || ""}</div>
       <div className="tag-dist">{rec.district || ""}</div>
       <QR text={rec.id} size={92} />
       <div className="tag-foot">{CAMP_THEME}</div>
@@ -1427,11 +1575,7 @@ export default function App() {
       )}
       {!splash && view === "admin" && <Admin go={setView} toast={toast} />}
       <Toast msg={toastMsg} kind={toastKind} onDone={() => setToastMsg("")} />
-      {!splash && (
-        <div className="footer">
-          The Church of Pentecost · AAAYM · The Catalyst Camp 2026
-        </div>
-      )}
+      {!splash && <div className="footer">Developed by Adsphere</div>}
     </div>
   );
 }
@@ -1458,7 +1602,7 @@ const CSS = `
 .splash{position:fixed;inset:0;z-index:50;background:radial-gradient(120% 90% at 50% 30%,#1c2b86,var(--navy2));
   display:flex;flex-direction:column;align-items:center;justify-content:center;animation:splashOut .5s ease 2.1s forwards;cursor:pointer}
 .splash-glow{position:absolute;width:520px;height:520px;border-radius:50%;
-  background:radial-gradient(circle,rgba(108, 107, 106, 0.35),transparent 60%);filter:blur(20px);animation:pulse 2.4s ease-in-out infinite}
+  background:radial-gradient(circle,rgba(244,180,26,.35),transparent 60%);filter:blur(20px);animation:pulse 2.4s ease-in-out infinite}
 .splash-logo-wrap{position:relative;animation:logoIn 1s cubic-bezier(.2,.8,.2,1)}
 .splash-logo{width:150px;height:150px;border-radius:50%;background:#fff;padding:8px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);position:relative;z-index:2}
 .splash-ring{position:absolute;inset:-14px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:var(--gold);animation:spin 3s linear infinite}
@@ -1470,8 +1614,8 @@ const CSS = `
 .page{max-width:1040px;margin:0 auto;padding:0 16px 40px;animation:fadeUp .5s ease both}
 .hero{position:relative;border-radius:0 0 32px 32px;overflow:hidden;margin:0 -16px 26px;padding:46px 24px 40px;color:#fff;text-align:center}
 .hero-bg{position:absolute;inset:0;background:
-  radial-gradient(80% 60% at 80% 0%,rgba(0, 0, 0, 0.35),transparent 60%),
-  radial-gradient(70% 60% at 10% 30%,rgba(251, 255, 252, 0.4),transparent 60%),
+  radial-gradient(80% 60% at 80% 0%,rgba(189, 148, 38, 0.35),transparent 60%),
+  radial-gradient(70% 60% at 10% 30%,rgba(36, 38, 169, 0.4),transparent 60%),
   linear-gradient(160deg,#1b2a85,var(--navy2));}
 .hero-bg:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 120%,rgba(244,180,26,.25),transparent 55%)}
 .hero-inner{position:relative;z-index:2}
@@ -1481,21 +1625,21 @@ const CSS = `
 .hero-title span{display:block;color:var(--gold);font-size:.42em;letter-spacing:8px;margin-top:6px}
 .hero-meta{color:#dde3ff;font-size:15px;line-height:1.6;margin:6px 0 20px}
 .countdown{display:flex;gap:10px;justify-content:center;margin-bottom:18px}
-.cd-cell{background:rgba(134, 133, 133, 0.1);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);
+.cd-cell{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);
   border-radius:16px;padding:12px 6px;min-width:68px;box-shadow:0 12px 24px -14px rgba(0,0,0,.6)}
 .cd-num{font-family:Poppins;font-weight:800;font-size:30px;color:#fff}
 .cd-lab{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#b9c2ff}
 .live-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);color:#eaf0ff;
   border:1px solid rgba(255,255,255,.2);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:20px}
-.live-pill.sm{background:rgba(235, 239, 236, 0.12);color:#1c6e2f;border-color:rgba(59, 59, 59, 0.3)}
-.dot{width:8px;height:8px;border-radius:50%;background:#37ff7a;box-shadow:0 0 0 0 rgba(149, 154, 151, 0.7);animation:ping 1.6s ease infinite}
+.live-pill.sm{background:rgba(167, 146, 40, 0.12);color:#1c6e2f;border-color:rgba(154, 128, 44, 0.3)}
+.dot{width:8px;height:8px;border-radius:50%;background:#37ff7a;box-shadow:0 0 0 0 rgba(245, 255, 55, 0.7);animation:ping 1.6s ease infinite}
 .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .link-admin{margin-top:16px;background:none;border:0;color:#cdd6ff;font-size:13px;cursor:pointer;font-weight:600}
 .link-admin:hover{color:#fff}
 
 .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .info-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;
-  box-shadow:0 20px 40px -28px rgba(34, 34, 34, 0.5)}
+  box-shadow:0 20px 40px -28px rgba(107, 87, 20, 0.5)}
 .ic-k{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700}
 .ic-v{font-family:Poppins;font-weight:700;font-size:20px;color:var(--navy);margin:2px 0 8px}
 .info-card p{font-size:14px;line-height:1.55;color:#566}
@@ -1519,6 +1663,10 @@ textarea.inp{resize:vertical}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field-err{display:block;color:var(--red);font-size:12.5px;margin-top:5px;font-weight:500}
 .field-err.big{text-align:center;margin:4px 0 12px}
+.section-lab{font-family:Poppins;font-weight:700;color:var(--navy);font-size:14px;margin:18px 0 8px;padding-top:12px;border-top:1px dashed var(--line)}
+.fee-note{background:#f4f6ff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;color:#445;margin:6px 0 14px;line-height:1.5}
+.chk-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13.5px;color:#334;cursor:pointer}
+.chk-row input{margin-top:3px;flex:none}
 
 /* bulk */
 .bulk-head{display:flex;align-items:center;justify-content:space-between;margin:8px 0 10px}
@@ -1545,11 +1693,11 @@ textarea.inp{resize:vertical}
 .admin-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
 .stat{background:linear-gradient(160deg,#fff,#f4f6ff);border:1px solid var(--line);border-radius:18px;padding:18px;
-  box-shadow:0 24px 44px -30px rgba(68, 68, 69, 0.5)}
+  box-shadow:0 24px 44px -30px rgba(20,33,107,.5)}
 .stat-n{font-family:Poppins;font-weight:800;font-size:30px;color:var(--navy);line-height:1}
 .stat-l{font-size:12.5px;color:#667;margin-top:6px;font-weight:500}
 .panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px;
-  box-shadow:0 24px 50px -36px rgba(38, 39, 39, 0.5)}
+  box-shadow:0 24px 50px -36px rgba(202, 157, 10, 0.5)}
 .panel-h{font-family:Poppins;font-weight:700;color:var(--navy);margin-bottom:12px}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .search{border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;outline:none;min-width:220px}
@@ -1585,7 +1733,7 @@ textarea.inp{resize:vertical}
 @keyframes fadeUp{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes blink{0%,100%{opacity:.3}50%{opacity:.8}}
-@keyframes ping{0%{box-shadow:0 0 0 0 rgba(44, 44, 44, 0.6)}70%{box-shadow:0 0 0 8px rgba(55,255,122,0)}100%{box-shadow:0 0 0 0 rgba(55,255,122,0)}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(55,255,122,.6)}70%{box-shadow:0 0 0 8px rgba(55,255,122,0)}100%{box-shadow:0 0 0 0 rgba(55,255,122,0)}}
 @keyframes splashOut{to{opacity:0;visibility:hidden}}
 
 @media(max-width:720px){
@@ -1599,7 +1747,7 @@ textarea.inp{resize:vertical}
 }
 
 /* badges in table */
-.badge-in{background:#e7f8ec;color:#1c7a32;border:1px solid #5c5c5c;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
+.badge-in{background:#e7f8ec;color:#1c7a32;border:1px solid #bfe8c9;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700}
 .badge-out{background:#f1f3fb;color:#6a74a0;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:600}
 
 /* QR + pass */
@@ -1607,7 +1755,7 @@ textarea.inp{resize:vertical}
 .qr-ph{background:#eef1fb;border-radius:10px}
 .pass-wrap{max-width:380px;margin:10px auto 0;text-align:center}
 .pass{background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;
-  box-shadow:0 40px 80px -40px rgba(0, 0, 0, 0.55);display:flex;flex-direction:column;align-items:center;gap:10px}
+  box-shadow:0 40px 80px -40px rgba(20,33,107,.55);display:flex;flex-direction:column;align-items:center;gap:10px}
 .pass-top{display:flex;align-items:center;gap:12px;width:100%;border-bottom:1px dashed var(--line);padding-bottom:14px}
 .pass-logo{width:48px;height:48px;border-radius:50%;background:#fff;padding:3px;border:1px solid var(--line)}
 .pass-camp{font-family:Poppins;font-weight:800;color:var(--navy);font-size:18px;text-align:left}
@@ -1663,7 +1811,7 @@ textarea.inp{resize:vertical}
 .tag-area{font-size:11px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
 .pass-theme{font-family:Poppins;font-weight:700;color:var(--green);font-size:13px;letter-spacing:.3px;margin-top:2px}
 .ci-last-theme{font-size:12.5px;color:var(--green);font-weight:700;margin-top:2px}
-.modal-overlay{position:fixed;inset:0;z-index:70;background:rgba(7, 7, 7, 0.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
+.modal-overlay{position:fixed;inset:0;z-index:70;background:rgba(11,20,64,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
 .modal{background:#fff;border-radius:20px;width:100%;max-width:560px;box-shadow:0 40px 90px -30px rgba(0,0,0,.6);margin:auto;animation:fadeUp .3s ease}
 .modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line);font-family:Poppins;font-weight:700;color:var(--navy);font-size:18px}
 .modal-x{background:none;border:0;font-size:26px;line-height:1;color:#889;cursor:pointer}
