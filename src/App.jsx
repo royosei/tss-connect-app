@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
 import logo from "./assets/logo.png";
+import groupPhoto from "./assets/group-photo.jpg";
 import QRCode from "qrcode";
 
 /* ============================================================
@@ -225,6 +226,12 @@ function Home({ go, total }) {
           </p>
         </Tilt>
       </div>
+      <div className="info-grid">
+        <Tilt className="info-card">...Theme...</Tilt>
+        <Tilt className="info-card">...Venue...</Tilt>
+        <Tilt className="info-card">...Who...</Tilt>
+      </div>
+      <img src={groupPhoto} alt="TSS Connect" className="home-photo" />
     </div>
   );
 }
@@ -1638,6 +1645,7 @@ const CSS = `
 .link-admin:hover{color:#fff}
 
 .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.home-photo{width:100%;max-width:480px;height:auto;border-radius:20px;margin:16px auto 0;display:block;box-shadow:0 24px 44px -30px rgba(20,33,107,.5)}
 .info-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;
   box-shadow:0 20px 40px -28px rgba(107, 87, 20, 0.5)}
 .ic-k{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-weight:700}
